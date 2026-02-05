@@ -40,19 +40,14 @@ const EmailController = class EmailController {
   }
 
   sendEmail(done) {
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        const responseObj = xhr.responseText;
-        done(responseObj);
-      }
-    };
-    xhr.open(
-      'POST',
-      'https://us-central1-memail-163415.cloudfunctions.net/sendMeMail'
-    );
-    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    xhr.send(JSON.stringify(this.data));
+    fetch('https://us-central1-memail-163415.cloudfunctions.net/sendMeMail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+      body: JSON.stringify(this.data)
+    })
+      .then(response => response.text())
+      .then(responseText => done(responseText))
+      .catch(() => done('error'));
   }
 
   renderSettings(email) {
