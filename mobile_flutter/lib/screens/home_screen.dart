@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:share_handler/share_handler.dart';
+import 'package:share_intent_package/share_intent_package.dart';
 import '../models/history_entry.dart';
 import '../services/api.dart' as api;
 import '../services/storage.dart' as storage;
@@ -24,16 +24,21 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _refreshHistory();
+    _initSharing();
+  }
 
-    final handler = ShareHandlerPlatform.instance;
-
-    // Handle share intents when app is already running
-    _intentSub = handler.sharedMediaStream.listen(_handleSharedMedia);
+  Future<void> _initSharing() async {
+    await ShareIntentPackage.instance.init();
 
     // Handle share intent that launched the app
-    handler.getInitialSharedMedia().then((media) {
-      if (media != null) _handleSharedMedia(media);
-    });
+    final initial = await ShareIntentPackage.instance.getInitialSharing();
+    if (initial != null && initial.hasContent) {
+      _handleSharedData(initial);
+    }
+
+    // Handle share intents when app is already running
+    _intentSub =
+        ShareIntentPackage.instance.getMediaStream().listen(_handleSharedData);
   }
 
   @override
@@ -47,9 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) setState(() => _history = history);
   }
 
-  void _handleSharedMedia(SharedMedia media) {
-    // Extract URL from shared content
-    final url = media.content ?? media.attachments?.firstOrNull?.path ?? '';
+  void _handleSharedData(SharedData data) {
+    final url = data.text ?? '';
     if (url.isEmpty) return;
 
     final title = url;
@@ -66,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
         'pendingUrl': url,
         'pendingTitle': title,
       });
-      ShareHandlerPlatform.instance.resetInitialSharedMedia();
       return;
     }
 
@@ -101,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _overlayUrl = null;
       });
     }
-    ShareHandlerPlatform.instance.resetInitialSharedMedia();
   }
 
   Future<void> _handleDelete(String id) async {
