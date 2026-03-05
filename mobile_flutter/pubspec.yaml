@@ -13,6 +13,9 @@ dependencies:
   shared_preferences: ^2.3.0
   share_intent_package: ^1.0.29
   intl: ^0.19.0
+  firebase_core: ^3.0.0
+  firebase_auth: ^5.0.0
+  google_sign_in: ^6.2.0
 
 dev_dependencies:
   flutter_test:

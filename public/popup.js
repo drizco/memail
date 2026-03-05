@@ -1,97 +1,92 @@
-const EmailController = class EmailController {
+const FIREBASE_API_KEY = 'AIzaSyB6I2wwF_Fu4n1M3rZTHwa4ODkcJk5Ncwo'
+
+function getGoogleToken(interactive = true) {
+  return new Promise((resolve, reject) => {
+    chrome.identity.getAuthToken({ interactive }, (token) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError)
+      } else {
+        resolve(token)
+      }
+    })
+  })
+}
+
+async function getFirebaseIdToken(googleAccessToken) {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        postBody: `access_token=${googleAccessToken}&providerId=google.com`,
+        requestUri: 'http://localhost',
+        returnIdpCredential: true,
+        returnSecureToken: true,
+      }),
+    }
+  )
+  const data = await response.json()
+  if (data.error) {
+    throw new Error(data.error.message)
+  }
+  return { idToken: data.idToken, email: data.email }
+}
+
+class EmailController {
   constructor() {
-    this.settings = false;
     this.data = {
       url: '',
       title: '',
-      email: ''
-    };
+    }
+    this.firebaseIdToken = null
+    this.email = null
   }
 
-  getEmail() {
-    const emailPromise = new Promise(resolve => {
-      chrome.identity.getProfileUserInfo(user => {
-        const email = user.email;
-        this.setEmail = email;
-        resolve(email);
-      });
-    });
-    return emailPromise;
+  async authenticate(interactive = true) {
+    const googleToken = await getGoogleToken(interactive)
+    const { idToken, email } = await getFirebaseIdToken(googleToken)
+    this.firebaseIdToken = idToken
+    this.email = email
   }
 
-  set setEmail(email) {
-    this.data.email = email;
+  renderSignIn(onSignIn) {
+    const msgContainer = document.getElementById('msg-container')
+    const button = document.createElement('button')
+    button.textContent = 'Sign in with Google'
+    button.addEventListener('click', onSignIn)
+    msgContainer.innerHTML = null
+    msgContainer.appendChild(button)
   }
 
   getTab() {
-    const tabPromise = new Promise(resolve => {
+    const tabPromise = new Promise((resolve) => {
       const config = {
         active: true,
-        currentWindow: true
-      };
-      chrome.tabs.query(config, tabs => {
-        const tab = tabs[0];
-        this.data.url = tab.url;
-        this.data.title = tab.title;
-        resolve(tab);
-      });
-    });
-    return tabPromise;
+        currentWindow: true,
+      }
+      chrome.tabs.query(config, (tabs) => {
+        const tab = tabs[0]
+        this.data.url = tab.url
+        this.data.title = tab.title
+        resolve(tab)
+      })
+    })
+    return tabPromise
   }
 
   sendEmail(done) {
     fetch('https://us-central1-memail-163415.cloudfunctions.net/sendMeMail', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-      body: JSON.stringify(this.data)
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: `Bearer ${this.firebaseIdToken}`,
+      },
+      body: JSON.stringify({ title: this.data.title, url: this.data.url }),
     })
-      .then(response => response.text())
-      .then(responseText => done(responseText))
-      .catch(() => done('error'));
-  }
-
-  renderSettings(email) {
-    const msgContainer = document.getElementById('msg-container'),
-      fragment = document.createDocumentFragment(),
-      label = document.createElement('label'),
-      labelText = document.createTextNode('Your email is saved as:'),
-      input = document.createElement('input'),
-      button = document.createElement('button'),
-      buttonText = document.createTextNode('UPDATE');
-
-    label.appendChild(labelText);
-    button.appendChild(buttonText);
-    input.value = email;
-    input.setAttribute('tabindex', '-1');
-    input.onchange = function (event) {
-      input.value = event.target.value;
-    };
-
-    const self = this;
-    const renderSending = this.renderSending.bind(this);
-    const sendEmail = this.sendEmail.bind(this);
-    const renderStatus = this.renderStatus.bind(this);
-    button.addEventListener('click', function (event) {
-      event.preventDefault();
-      const store = localStorage;
-      store.setItem('email', input.value);
-      self.setEmail = input.value;
-      self.settings = false;
-      renderSending(input.value);
-      sendEmail(renderStatus);
-    });
-    [label, input, button].forEach(el => {
-      el.className = 'animate';
-      if (el === button) {
-        el.className += ' shadow';
-      }
-    });
-    fragment.appendChild(label);
-    fragment.appendChild(input);
-    fragment.appendChild(button);
-
-    msgContainer.innerHTML = null;
-    msgContainer.appendChild(fragment);
+      .then((response) => response.text())
+      .then((responseText) => done(responseText))
+      .catch(() => done('error'))
   }
 
   renderSending(email) {
@@ -104,79 +99,79 @@ const EmailController = class EmailController {
       toEl = document.createElement('div'),
       toText = document.createTextNode('to '),
       emailEl = document.createElement('span'),
-      emailText = document.createTextNode(email);
+      emailText = document.createTextNode(email)
 
-    mainEl.appendChild(mainText);
-    titleEl.appendChild(titleText);
-    toEl.appendChild(toText);
-    emailEl.appendChild(emailText);
+    mainEl.appendChild(mainText)
+    titleEl.appendChild(titleText)
+    toEl.appendChild(toText)
+    emailEl.appendChild(emailText)
 
     for (let i = 1; i <= 3; i++) {
       let dotText = document.createTextNode('.'),
-        dotEl = document.createElement('span');
-      dotEl.appendChild(dotText);
-      dotEl.setAttribute('class', `dot dot-${i}`);
-      mainEl.appendChild(dotEl);
+        dotEl = document.createElement('span')
+      dotEl.appendChild(dotText)
+      dotEl.setAttribute('class', `dot dot-${i}`)
+      mainEl.appendChild(dotEl)
     }
 
-    toEl.appendChild(emailEl);
+    toEl.appendChild(emailEl)
 
-    fragment.appendChild(mainEl);
-    fragment.appendChild(titleEl);
-    fragment.appendChild(toEl);
-    msgContainer.innerHTML = null;
-    msgContainer.appendChild(fragment);
+    fragment.appendChild(mainEl)
+    fragment.appendChild(titleEl)
+    fragment.appendChild(toEl)
+    msgContainer.innerHTML = null
+    msgContainer.appendChild(fragment)
   }
 
   renderStatus(response) {
-    if (this.settings) return;
     const msgContainer = document.getElementById('msg-container'),
       status = document.createElement('div'),
       success = 'MEmail sent!',
       error = 'uh oh, something went wrong...',
       statusMessage = response === 'success' ? success : error,
-      statusText = document.createTextNode(statusMessage);
-    status.className = 'status animate';
-    status.appendChild(statusText);
-    msgContainer.innerHTML = null;
-    msgContainer.appendChild(status);
-    setTimeout(window.close, 1000);
+      statusText = document.createTextNode(statusMessage)
+    status.className = 'status animate'
+    status.appendChild(statusText)
+    msgContainer.innerHTML = null
+    msgContainer.appendChild(status)
+    setTimeout(window.close, 1000)
   }
-};
 
-document.addEventListener('DOMContentLoaded', function () {
-  const cog = document.getElementById('cog'),
-    store = localStorage,
-    MEmail = new EmailController();
+  renderError(message) {
+    const msgContainer = document.getElementById('msg-container'),
+      status = document.createElement('div'),
+      statusText = document.createTextNode(message)
+    status.className = 'status animate'
+    status.appendChild(statusText)
+    msgContainer.innerHTML = null
+    msgContainer.appendChild(status)
+  }
+}
 
-  cog.addEventListener('click', function (event) {
-    event.preventDefault();
-    MEmail.settings = true;
-    const storedEmail = store.getItem('email');
-    if (storedEmail) {
-      MEmail.renderSettings(storedEmail);
-    } else {
-      MEmail.getEmail().then(fetchedEmail => {
-        MEmail.renderSettings(fetchedEmail);
-      });
-    }
-  });
+document.addEventListener('DOMContentLoaded', async function () {
+  const MEmail = new EmailController()
 
-  MEmail.getTab().then(() => {
-    const storedEmail = store.getItem('email');
-    if (storedEmail) {
-      MEmail.setEmail = storedEmail;
-      MEmail.renderSending(storedEmail);
-      const renderStatus = MEmail.renderStatus.bind(MEmail);
-      setTimeout(() => {
-        if (!MEmail.settings) {
-          MEmail.sendEmail(renderStatus);
-        }
-      }, 500);
-    } else {
-      MEmail.getEmail().then(fetchedEmail => {
-        MEmail.renderSettings(fetchedEmail);
-      });
-    }
-  });
-});
+  async function sendFlow() {
+    await MEmail.authenticate()
+    await MEmail.getTab()
+    MEmail.renderSending(MEmail.email)
+    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
+  }
+
+  try {
+    // Try silent auth first (no popup)
+    await MEmail.authenticate(false)
+    await MEmail.getTab()
+    MEmail.renderSending(MEmail.email)
+    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
+  } catch {
+    // Not authenticated — show sign-in button
+    MEmail.renderSignIn(async () => {
+      try {
+        await sendFlow()
+      } catch {
+        MEmail.renderError('Sign in failed. Please try again.')
+      }
+    })
+  }
+})

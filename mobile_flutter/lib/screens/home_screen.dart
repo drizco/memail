@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:share_intent_package/share_intent_package.dart';
 import '../models/history_entry.dart';
 import '../services/api.dart' as api;
+import '../services/auth.dart' as auth;
 import '../services/storage.dart' as storage;
 import '../components/history_item.dart';
 import '../components/sending_overlay.dart';
@@ -61,24 +62,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleShareIntent(String url, String title) async {
-    final email = await storage.getEmail();
+    final idToken = await auth.getIdToken();
 
     if (!mounted) return;
 
-    if (email == null || email.isEmpty) {
-      Navigator.pushNamed(context, '/settings', arguments: {
-        'pendingUrl': url,
-        'pendingTitle': title,
-      });
-      return;
-    }
+    if (idToken == null) return;
 
     setState(() {
       _overlayUrl = url;
       _overlayStatus = OverlayStatus.sending;
     });
 
-    final success = await api.sendMeMail(email, title, url);
+    final success = await api.sendMeMail(idToken, title, url);
     final status = success ? 'success' : 'error';
 
     await storage.addHistoryEntry(HistoryEntry(

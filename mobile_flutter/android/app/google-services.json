@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "294672396739",
+    "firebase_url": "https://memail-163415.firebaseio.com",
+    "project_id": "memail-163415",
+    "storage_bucket": "memail-163415.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294672396739:android:b8745d82bc6850c8b40d76",
+        "android_client_info": {
+          "package_name": "dev.drizco.memail"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "294672396739-jfjihdggv3tugbs6id7bot0jdbrorg8b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV31ldFgIS8eN8kee5QlP9CXqOSuOSWyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "294672396739-jfjihdggv3tugbs6id7bot0jdbrorg8b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
