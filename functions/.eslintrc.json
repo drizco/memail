@@ -1,8 +1,9 @@
 {
   "parserOptions": {
     // Required for certain syntax usages
-    "ecmaVersion": 2017
+    "ecmaVersion": 2020
   },
+  "ignorePatterns": ["*.test.js"],
   "plugins": [
     "promise"
   ],

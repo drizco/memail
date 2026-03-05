@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "MEmail Chrome Extension",
   "scripts": {
-    "build": "mkdir -p dist && zip -r dist/memail-extension.zip src/"
+    "build": "mkdir -p dist && zip -r dist/memail-extension.zip src/",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -14,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/drizco/memail/issues"
   },
-  "homepage": "https://github.com/drizco/memail#readme"
+  "homepage": "https://github.com/drizco/memail#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

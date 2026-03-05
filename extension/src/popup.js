@@ -1,38 +1,3 @@
-const FIREBASE_API_KEY = 'AIzaSyB6I2wwF_Fu4n1M3rZTHwa4ODkcJk5Ncwo'
-
-function getGoogleToken(interactive = true) {
-  return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive }, (token) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError)
-      } else {
-        resolve(token)
-      }
-    })
-  })
-}
-
-async function getFirebaseIdToken(googleAccessToken) {
-  const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        postBody: `access_token=${googleAccessToken}&providerId=google.com`,
-        requestUri: 'http://localhost',
-        returnIdpCredential: true,
-        returnSecureToken: true,
-      }),
-    }
-  )
-  const data = await response.json()
-  if (data.error) {
-    throw new Error(data.error.message)
-  }
-  return { idToken: data.idToken, email: data.email }
-}
-
 class EmailController {
   constructor() {
     this.data = {
@@ -44,8 +9,8 @@ class EmailController {
   }
 
   async authenticate(interactive = true) {
-    const googleToken = await getGoogleToken(interactive)
-    const { idToken, email } = await getFirebaseIdToken(googleToken)
+    const googleToken = await utils.getGoogleToken(interactive)
+    const { idToken, email } = await utils.getFirebaseIdToken(googleToken)
     this.firebaseIdToken = idToken
     this.email = email
   }
@@ -59,32 +24,16 @@ class EmailController {
     msgContainer.appendChild(button)
   }
 
-  getTab() {
-    const tabPromise = new Promise((resolve) => {
-      const config = {
-        active: true,
-        currentWindow: true,
-      }
-      chrome.tabs.query(config, (tabs) => {
-        const tab = tabs[0]
-        this.data.url = tab.url
-        this.data.title = tab.title
-        resolve(tab)
-      })
-    })
-    return tabPromise
+  async getTab() {
+    const tab = await utils.getTab()
+    this.data.url = tab.url
+    this.data.title = tab.title
+    return tab
   }
 
   sendEmail(done) {
-    fetch('https://us-central1-memail-163415.cloudfunctions.net/sendMeMailV2', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Bearer ${this.firebaseIdToken}`,
-      },
-      body: JSON.stringify({ title: this.data.title, url: this.data.url }),
-    })
-      .then((response) => response.text())
+    utils
+      .sendEmail(this.firebaseIdToken, this.data)
       .then((responseText) => done(responseText))
       .catch(() => done('error'))
   }

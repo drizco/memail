@@ -33,7 +33,7 @@ exports.sendMeMailV2 = onRequest(
       const authHeader = req.headers.authorization
 
       if (!authHeader) {
-        return res.status(400).send('Not authenticated')
+        return res.status(401).send('Not authenticated')
       }
 
       const idToken = authHeader.split('Bearer ')[1]
