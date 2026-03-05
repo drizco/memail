@@ -76,7 +76,7 @@ class EmailController {
   }
 
   sendEmail(done) {
-    fetch('https://us-central1-memail-163415.cloudfunctions.net/sendMeMail', {
+    fetch('https://us-central1-memail-163415.cloudfunctions.net/sendMeMailV2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
