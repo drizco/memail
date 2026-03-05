@@ -2,19 +2,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/history_entry.dart';
 
-const _emailKey = '@memail_email';
 const _historyKey = '@memail_history';
 const _maxHistory = 500;
-
-Future<String?> getEmail() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getString(_emailKey);
-}
-
-Future<void> saveEmail(String email) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(_emailKey, email);
-}
 
 Future<List<HistoryEntry>> getHistory() async {
   final prefs = await SharedPreferences.getInstance();
