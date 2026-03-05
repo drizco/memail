@@ -5,7 +5,9 @@ const nodemailer = require('nodemailer')
 
 admin.initializeApp()
 
-const resendApiKey = defineSecret('RESEND_API_KEY')
+const RESEND_API_KEY = defineSecret('RESEND_API_KEY')
+const NO_REPLY_EMAIL = 'no-reply@memail.drizco.dev'
+const EXTENSION_ID = 'fflpcmbjflhfimhfhgcdmgjinglgflhk'
 
 const getTransporter = () => {
   return nodemailer.createTransport({
@@ -14,15 +16,15 @@ const getTransporter = () => {
     secure: true,
     auth: {
       user: 'resend',
-      pass: resendApiKey.value(),
+      pass: RESEND_API_KEY.value(),
     },
   })
 }
 
 exports.sendMeMailV2 = onRequest(
   {
-    cors: [`chrome-extension://${process.env.EXTENSION_ID}`, 'http://localhost:3000'],
-    secrets: [resendApiKey],
+    cors: [`chrome-extension://${EXTENSION_ID}`, 'http://localhost:3000'],
+    secrets: [RESEND_API_KEY],
     region: 'us-central1',
   },
   async (req, res) => {
@@ -46,7 +48,7 @@ exports.sendMeMailV2 = onRequest(
       const transporter = getTransporter()
 
       await transporter.sendMail({
-        from: `MEmail <${process.env.NO_REPLY_EMAIL}>`,
+        from: `MEmail <${NO_REPLY_EMAIL}>`,
         to: recipientEmail,
         subject: title || 'MEmail Link',
         text: url,
