@@ -1,22 +1,22 @@
 # MeMail Privacy Policy
 
-Last Updated: February 5, 2026
+Last Updated: March 5, 2026
 
 ## What MeMail Does
 
-MeMail is a Chrome extension that emails you a link to the page you're currently viewing. When you click the extension, it sends an email containing the page title and URL to the email address you've configured.
+MeMail is a Chrome extension that emails you a link to the page you're currently viewing. When you click the extension, it sends an email containing the page title and URL to the email address associated with your Google account.
 
 ## What Information We Collect
 
 When you use MeMail, the following information is sent to our server to deliver the email:
 
-- **Your email address** (retrieved from your Chrome profile or manually entered by you)
+- **Your email address** (retrieved from your Google account via Chrome's identity API)
 - **The current page URL**
 - **The current page title**
 
 ## How Your Information Is Stored
 
-**Locally:** Your email address is saved in your browser's local storage so you don't have to enter it each time. This data stays on your device and is cleared if you uninstall the extension or clear your browser data.
+**Locally:** Your Google authentication token is managed by Chrome's identity system. The extension does not store any personal data locally.
 
 **Server-side:** Our server (a Firebase Cloud Function) processes your email address, page URL, and page title only to send the email. No data is stored on the server after the email is sent.
 
@@ -34,8 +34,9 @@ Your information is used solely to send you the email you requested. We do not:
 
 MeMail uses the following third-party services to operate:
 
-- **Google Firebase** (cloud function hosting)
+- **Google Firebase** (cloud function hosting and authentication)
 - **Gmail API** (email delivery)
+- **Google Identity Toolkit** (user authentication)
 
 These services are subject to [Google's Privacy Policy](https://policies.google.com/privacy).
 
