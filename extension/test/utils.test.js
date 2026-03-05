@@ -1,6 +1,6 @@
 const {
   utils: { getGoogleToken, getFirebaseIdToken, getTab, sendEmail },
-} = require('./utils')
+} = require('../src/utils')
 
 // Mock chrome APIs
 global.chrome = {
@@ -96,9 +96,7 @@ describe('getFirebaseIdToken', () => {
         }),
     })
 
-    await expect(getFirebaseIdToken('bad-token')).rejects.toThrow(
-      'INVALID_TOKEN'
-    )
+    await expect(getFirebaseIdToken('bad-token')).rejects.toThrow('INVALID_TOKEN')
   })
 })
 
@@ -149,8 +147,8 @@ describe('sendEmail', () => {
   it('propagates fetch errors', async () => {
     fetch.mockRejectedValue(new Error('Network error'))
 
-    await expect(
-      sendEmail('token', { title: 'T', url: 'http://x.com' })
-    ).rejects.toThrow('Network error')
+    await expect(sendEmail('token', { title: 'T', url: 'http://x.com' })).rejects.toThrow(
+      'Network error'
+    )
   })
 })
