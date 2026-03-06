@@ -103,3 +103,5 @@ mobile_flutter/.metadata
 mobile_flutter/pubspec.lock
 mobile_flutter/*.iml
 mobile_flutter/README.md
+
+.firebase/

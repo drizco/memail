@@ -1,6 +1,5 @@
 const FIREBASE_API_KEY = 'AIzaSyB6I2wwF_Fu4n1M3rZTHwa4ODkcJk5Ncwo'
-const CLOUD_FUNCTION_URL =
-  'https://us-central1-memail-163415.cloudfunctions.net/sendMeMailV2'
+const CLOUD_FUNCTION_URL = 'https://api.memail.drizco.dev/send'
 const OAUTH_CLIENT_ID =
   '294672396739-nf6lc5mn3fiu3t8t9jhatfflj7gt3b0l.apps.googleusercontent.com'
 
