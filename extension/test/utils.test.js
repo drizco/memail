@@ -5,7 +5,8 @@ const {
 // Mock chrome APIs
 global.chrome = {
   identity: {
-    getAuthToken: jest.fn(),
+    launchWebAuthFlow: jest.fn(),
+    getRedirectURL: jest.fn(() => 'https://test-id.chromiumapp.org/'),
   },
   tabs: {
     query: jest.fn(),
@@ -25,30 +26,32 @@ beforeEach(() => {
 
 describe('getGoogleToken', () => {
   it('resolves with token on success', async () => {
-    chrome.identity.getAuthToken.mockImplementation((_opts, cb) => {
-      cb('google-token-123')
+    chrome.identity.launchWebAuthFlow.mockImplementation((_opts, cb) => {
+      cb('https://test-id.chromiumapp.org/#access_token=google-token-123&token_type=Bearer')
     })
 
     const token = await getGoogleToken()
     expect(token).toBe('google-token-123')
-    expect(chrome.identity.getAuthToken).toHaveBeenCalledWith(
-      { interactive: true },
+    expect(chrome.identity.launchWebAuthFlow).toHaveBeenCalledWith(
+      { url: expect.stringContaining('accounts.google.com'), interactive: true },
       expect.any(Function)
     )
   })
 
   it('passes interactive=false when specified', async () => {
-    chrome.identity.getAuthToken.mockImplementation((_opts, cb) => cb('token'))
+    chrome.identity.launchWebAuthFlow.mockImplementation((_opts, cb) => {
+      cb('https://test-id.chromiumapp.org/#access_token=token&token_type=Bearer')
+    })
 
     await getGoogleToken(false)
-    expect(chrome.identity.getAuthToken).toHaveBeenCalledWith(
-      { interactive: false },
+    expect(chrome.identity.launchWebAuthFlow).toHaveBeenCalledWith(
+      { url: expect.any(String), interactive: false },
       expect.any(Function)
     )
   })
 
   it('rejects with runtime error', async () => {
-    chrome.identity.getAuthToken.mockImplementation((_opts, cb) => {
+    chrome.identity.launchWebAuthFlow.mockImplementation((_opts, cb) => {
       chrome.runtime.lastError = { message: 'User not signed in' }
       cb(undefined)
     })
@@ -56,6 +59,14 @@ describe('getGoogleToken', () => {
     await expect(getGoogleToken()).rejects.toEqual({
       message: 'User not signed in',
     })
+  })
+
+  it('rejects when no access token in response', async () => {
+    chrome.identity.launchWebAuthFlow.mockImplementation((_opts, cb) => {
+      cb('https://test-id.chromiumapp.org/#error=access_denied')
+    })
+
+    await expect(getGoogleToken()).rejects.toThrow('No access token in response')
   })
 })
 

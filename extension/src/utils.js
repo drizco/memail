@@ -1,22 +1,40 @@
 const FIREBASE_API_KEY = 'AIzaSyB6I2wwF_Fu4n1M3rZTHwa4ODkcJk5Ncwo'
 const CLOUD_FUNCTION_URL =
   'https://us-central1-memail-163415.cloudfunctions.net/sendMeMailV2'
+const OAUTH_CLIENT_ID =
+  '294672396739-nf6lc5mn3fiu3t8t9jhatfflj7gt3b0l.apps.googleusercontent.com'
 
 function getGoogleToken(interactive = true) {
+  const redirectUrl = chrome.identity.getRedirectURL()
+  const params = new URLSearchParams({
+    client_id: OAUTH_CLIENT_ID,
+    redirect_uri: redirectUrl,
+    response_type: 'token',
+    scope: 'openid email profile',
+  })
+  const authUrl = `https://accounts.google.com/o/oauth2/auth?${params}`
+
   return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive }, (token) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError)
-      } else {
+    chrome.identity.launchWebAuthFlow({ url: authUrl, interactive }, (responseUrl) => {
+      if (chrome.runtime.lastError || !responseUrl) {
+        reject(chrome.runtime.lastError || new Error('No response'))
+        return
+      }
+      const params = new URLSearchParams(new URL(responseUrl.replace('#', '?')).search)
+      const token = params.get('access_token')
+      if (token) {
         resolve(token)
+      } else {
+        reject(new Error('No access token in response'))
       }
     })
   })
 }
 
 async function getFirebaseIdToken(googleAccessToken) {
+  const params = new URLSearchParams({ key: FIREBASE_API_KEY })
   const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?${params}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
