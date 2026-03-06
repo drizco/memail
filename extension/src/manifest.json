@@ -2,7 +2,7 @@
   "manifest_version": 3,
 
   "name": "MEmail",
-  "version": "5.0",
+  "version": "5.0.2",
   "description": "Email yourself links to sites you'd like to view later, in a single click!",
   "icons": {
     "16": "memail_logo@16px.png",
@@ -18,9 +18,5 @@
     "https://us-central1-memail-163415.cloudfunctions.net/*",
     "https://identitytoolkit.googleapis.com/*"
   ],
-  "oauth2": {
-    "client_id": "294672396739-f3ren28g147gkd0hj3pnl7eb4sspn0vd.apps.googleusercontent.com",
-    "scopes": ["openid", "email", "profile"]
-  },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkDcD1rgXOKcVrkwice8VUc7MFNfwJwIFGDCeMYnThsd80NyqChvjOF0Mv5hCss8vpei5jwL4Gb0TtOGmYOGHiArJhNvSLVbjXOzA78PjIPUuJ4/icIjbVHt981CP3LL3o2+ZLXD/XU6buHkXK5YcxavfBX6T+go2ERcAp+GeBfmh06E3SIrwzHap/K8/9rUP8g+a+h1DfzCXpfIesXahZwgWwmNGcQ9og51bUMT+fI91uDEWrjbFQpXPShelNTk4I2HPtdHKrbDKHIJdJnqqx2+b/deChWO+jvwIoIPxWE5zLkh/d0w7vXPSNUQZuQ6npQL7e27iSW56Vw6Ws/amaQIDAQAB"
 }
