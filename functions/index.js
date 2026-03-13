@@ -2,6 +2,8 @@ const { onRequest } = require('firebase-functions/v2/https')
 const { defineSecret } = require('firebase-functions/params')
 const admin = require('firebase-admin')
 const nodemailer = require('nodemailer')
+const https = require('https')
+const http = require('http')
 
 admin.initializeApp()
 
@@ -20,7 +22,57 @@ const getTransporter = () => {
   })
 }
 
-const brandRed = '#df291c'
+const fetchPageTitle = (url) => {
+  return new Promise((resolve) => {
+    const client = url.startsWith('https') ? https : http
+    const request = client.get(url, { timeout: 5000 }, (res) => {
+      if (res.statusCode < 200 || res.statusCode >= 400) {
+        resolve(null)
+        res.resume()
+        return
+      }
+
+      // Follow redirects
+      if (res.statusCode >= 300 && res.headers.location) {
+        resolve(fetchPageTitle(res.headers.location))
+        res.resume()
+        return
+      }
+
+      let body = ''
+      res.setEncoding('utf8')
+      res.on('data', (chunk) => {
+        body += chunk
+        // Stop reading once we have enough to find the title
+        const match = body.match(/<title[^>]*>([^<]+)<\/title>/i)
+        if (match) {
+          resolve(match[1].trim())
+          res.destroy()
+        }
+      })
+      res.on('end', () => {
+        const match = body.match(/<title[^>]*>([^<]+)<\/title>/i)
+        resolve(match ? match[1].trim() : null)
+      })
+    })
+    request.on('error', () => resolve(null))
+    request.on('timeout', () => {
+      request.destroy()
+      resolve(null)
+    })
+  })
+}
+
+const cleanUrl = (url) => {
+  try {
+    const parsed = new URL(url)
+    return parsed.hostname + parsed.pathname.replace(/\/$/, '')
+  } catch (_) {
+    return url.replace(/^https?:\/\//, '').split('?')[0]
+  }
+}
+
+const brandRed = '#b8221a'
 const bmcLink = 'https://www.buymeacoffee.com/drizco'
 const logoUrl = 'https://api.memail.drizco.dev/logo.png'
 
@@ -45,24 +97,26 @@ const getEmailTemplate = (title, url) => {
 
     <tr>
       <td style="padding: 0 40px 40px 40px; text-align: center;">
-        <h2 style="color: ${brandRed}; font-size: 24px; margin-bottom: 10px;">${title || 'Saved Link'}</h2>
-        <p style="font-size: 16px; color: #666; margin-bottom: 30px;">You sent yourself this link from MEmail:</p>
-        
-        <a href="${url}" style="background-color: ${brandRed}; color: #ffffff; padding: 15px 25px; text-decoration: none; font-weight: bold; border-radius: 3px; font-size: 18px; display: inline-block;">
-          Open Link
-        </a>
-        
-        <p style="margin-top: 30px; font-size: 13px; color: #999; word-break: break-all;">
-          ${url}
+        <h2 style="font-size: 24px; margin-bottom: 40px;"><a href="${url}" style="color: ${brandRed}; text-decoration: none;">${title || url}</a></h2>
+
+        <p style="margin-bottom: 40px;font-size: 13px; word-break: break-all;">
+          <a href="${url}" style="color: ${brandRed};">${url}</a>
         </p>
+        
+        <p>
+          <a href="${url}" style="background-color: ${brandRed}; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 3px; font-size: 18px; display: inline-block;">
+            Open Link
+          </a>
+        </p>
+        
       </td>
     </tr>
 
     <tr>
       <td style="padding: 20px; background-color: #f4f4f4; text-align: center; font-size: 12px; color: #888;">
-        Sent via <strong>MEmail</strong>
+        You sent yourself this link via <strong>MEmail</strong>
         <br><br>
-        Enjoying MEmail? <a href="${bmcLink}" style="color: ${brandRed}; text-decoration: none; font-weight: bold;">Buy me a coffee</a> ☕️.
+        Enjoying MEmail? <a href="${bmcLink}" style="color: ${brandRed}; text-decoration: none; font-weight: bold;">Buy me a coffee</a>  ☕️
       </td>
     </tr>
   </table>
@@ -97,7 +151,13 @@ exports.sendMeMailV2 = onRequest(
       const { title, url } = req.body
       const transporter = getTransporter()
 
-      const subject = title || 'MEmail Link'
+      let subject = title
+      if (!subject) {
+        subject = await fetchPageTitle(url)
+      }
+      if (!subject) {
+        subject = cleanUrl(url)
+      }
 
       await transporter.sendMail({
         from: `MEmail <${NO_REPLY_EMAIL}>`,
