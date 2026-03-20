@@ -46,8 +46,8 @@ class SettingsScreen extends StatelessWidget {
                 }
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFE52929),
-                side: const BorderSide(color: Color(0xFFE52929)),
+                foregroundColor: const Color(0xFFB8221A),
+                side: const BorderSide(color: Color(0xFFB8221A)),
                 padding: const EdgeInsets.all(16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

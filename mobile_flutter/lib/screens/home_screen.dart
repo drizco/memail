@@ -57,11 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final url = data.text ?? '';
     if (url.isEmpty) return;
 
-    final title = url;
-    _handleShareIntent(url, title);
+    _handleShareIntent(url);
   }
 
-  Future<void> _handleShareIntent(String url, String title) async {
+  Future<void> _handleShareIntent(String url) async {
     final idToken = await auth.getIdToken();
 
     if (!mounted) return;
@@ -73,12 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _overlayStatus = OverlayStatus.sending;
     });
 
-    final success = await api.sendMeMail(idToken, title, url);
+    final success = await api.sendMeMail(idToken, url);
     final status = success ? 'success' : 'error';
 
     await storage.addHistoryEntry(HistoryEntry(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
+      title: url,
       url: url,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       status: status,
@@ -184,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Clear All',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color(0xFFE52929),
+                            color: Color(0xFFB8221A),
                           ),
                         ),
                       ),
