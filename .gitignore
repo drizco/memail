@@ -95,13 +95,13 @@ app.*.symbols
 app.*.map.json
 
 # Flutter build artifacts & unused platform folders
-mobile_flutter/build/
-mobile_flutter/.dart_tool/
-mobile_flutter/.flutter-plugins
-mobile_flutter/.flutter-plugins-dependencies
-mobile_flutter/.metadata
-mobile_flutter/pubspec.lock
-mobile_flutter/*.iml
-mobile_flutter/README.md
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.metadata
+mobile/pubspec.lock
+mobile/*.iml
+mobile/README.md
 
 .firebase/
