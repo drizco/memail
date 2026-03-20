@@ -62,7 +62,7 @@ class HistoryItem extends StatelessWidget {
                       if (entry.status == 'error')
                         const TextSpan(
                           text: ' — failed',
-                          style: TextStyle(color: Color(0xFFE52929)),
+                          style: TextStyle(color: Color(0xFFB8221A)),
                         ),
                     ],
                   ),

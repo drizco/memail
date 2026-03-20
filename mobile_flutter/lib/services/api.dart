@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 const _apiUrl =
-    'https://us-central1-memail-163415.cloudfunctions.net/sendMeMail';
+    'https://api.memail.drizco.dev/send';
 
-Future<bool> sendMeMail(String idToken, String title, String url) async {
+Future<bool> sendMeMail(String idToken, String url) async {
   try {
     final response = await http.post(
       Uri.parse(_apiUrl),
@@ -12,7 +12,7 @@ Future<bool> sendMeMail(String idToken, String title, String url) async {
         'Content-Type': 'application/json;charset=UTF-8',
         'Authorization': 'Bearer $idToken',
       },
-      body: jsonEncode({'title': title, 'url': url}),
+      body: jsonEncode({'url': url}),
     );
     return response.body == 'success';
   } catch (_) {

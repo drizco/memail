@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "294672396739-spl3ojbn2bup74h7al6o5q46ds0g7ndr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.drizco.memail",
+            "certificate_hash": "becd4ec9a32343cfe91f4b77da88ee153aeba098"
+          }
+        },
+        {
           "client_id": "294672396739-jfjihdggv3tugbs6id7bot0jdbrorg8b.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -30,6 +38,13 @@
             {
               "client_id": "294672396739-jfjihdggv3tugbs6id7bot0jdbrorg8b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "294672396739-aeract8ft5pj28sj6gqe540jif006gn7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.drizco.memail"
+              }
             }
           ]
         }

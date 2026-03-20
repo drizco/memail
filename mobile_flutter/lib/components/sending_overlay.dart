@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum OverlayStatus { sending, sent, error }
 
-class SendingOverlay extends StatelessWidget {
+class _BouncingDot extends StatelessWidget {
+  final Animation<double> animation;
+
+  const _BouncingDot({required this.animation});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, -animation.value),
+          child: Text(
+            '.',
+            style: GoogleFonts.amaticSc(
+              fontSize: 36,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF222222),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SendingOverlay extends StatefulWidget {
   final OverlayStatus status;
   final String? url;
 
@@ -13,75 +40,140 @@ class SendingOverlay extends StatelessWidget {
   });
 
   @override
+  State<SendingOverlay> createState() => _SendingOverlayState();
+}
+
+class _SendingOverlayState extends State<SendingOverlay>
+    with TickerProviderStateMixin {
+  late final AnimationController _dotController;
+  late final List<Animation<double>> _dotAnimations;
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _dotController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    )..repeat();
+
+    _dotAnimations = List.generate(3, (i) {
+      final start = i * 0.2;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return TweenSequence<double>([
+        TweenSequenceItem(tween: Tween(begin: 0, end: 5), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: 5, end: 0), weight: 1),
+      ]).animate(CurvedAnimation(
+        parent: _dotController,
+        curve: Interval(start, end, curve: Curves.easeInOut),
+      ));
+    });
+
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    )..forward();
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _dotController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.4),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(minWidth: 220),
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                offset: Offset(0, 2),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (status == OverlayStatus.sending) ...[
-                const CircularProgressIndicator(
-                  color: Color(0xFFE52929),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.4),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 220),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(0, 3),
+                  blurRadius: 6,
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Sending...',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF222222),
-                  ),
+                BoxShadow(
+                  color: Color(0x3B000000),
+                  offset: Offset(0, 3),
+                  blurRadius: 6,
                 ),
               ],
-              if (status == OverlayStatus.sent)
-                const Text(
-                  'MEmail sent!',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF222222),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.status == OverlayStatus.sending) ...[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Sending',
+                        style: GoogleFonts.amaticSc(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF222222),
+                        ),
+                      ),
+                      ...List.generate(
+                        3,
+                        (i) => _BouncingDot(animation: _dotAnimations[i]),
+                      ),
+                    ],
                   ),
-                ),
-              if (status == OverlayStatus.error)
-                const Text(
-                  'Something went wrong',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFE52929),
-                  ),
-                ),
-              if (url != null) ...[
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: 240,
-                  child: Text(
-                    url!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF888888),
+                ],
+                if (widget.status == OverlayStatus.sent)
+                  Text(
+                    'MEmail sent!',
+                    style: GoogleFonts.amaticSc(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF222222),
                     ),
                   ),
-                ),
+                if (widget.status == OverlayStatus.error)
+                  Text(
+                    'uh oh, something went wrong...',
+                    style: GoogleFonts.amaticSc(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFB8221A),
+                    ),
+                  ),
+                if (widget.url != null) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: 240,
+                    child: Text(
+                      widget.url!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.josefinSlab(
+                        fontSize: 13,
+                        color: const Color(0xFF888888),
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
