@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('MEmail'),
         actions: [
           IconButton(
-            icon: const Text('⚙', style: TextStyle(fontSize: 22)),
+            icon: const Icon(Icons.settings, size: 22),
             onPressed: () async {
               await Navigator.pushNamed(context, '/settings');
               _refreshHistory();
