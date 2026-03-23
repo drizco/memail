@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_intent_package/share_intent_package.dart';
 import '../models/history_entry.dart';
 import '../services/api.dart' as api;
@@ -92,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
     await _refreshHistory();
 
     await Future.delayed(const Duration(milliseconds: 1500));
+    if (success) {
+      SystemNavigator.pop();
+    }
     if (mounted) {
       setState(() {
         _overlayStatus = null;
