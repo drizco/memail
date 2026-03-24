@@ -1,26 +1,26 @@
 # MEmail Privacy Policy
 
-Last Updated: March 5, 2026
+Last Updated: March 24, 2026
 
 ## What MEmail Does
 
-MEmail is a Chrome extension that emails you a link to the page you're currently viewing. When you click the extension, it sends an email containing the page title and URL to the email address associated with your Google account.
+MEmail lets you email yourself a link in a single click or tap. It is available as a Chrome extension and a mobile app (Android/iOS). When you use MEmail, it sends an email containing the page title and URL to the email address associated with your Google account.
 
 ## What Information We Collect
 
 When you use MEmail, the following information is sent to our server to deliver the email:
 
-- **Your email address** (retrieved from your Google account via Chrome's identity API)
-- **The current page URL**
-- **The current page title**
+- **Your email address** (retrieved from your Google account)
+- **The shared URL**
+- **The page title**
 
 ## How Your Information Is Stored
 
-**Locally:** Your Google authentication token is managed by Chrome's identity system. The extension does not store any personal data locally.
+**Locally (Chrome extension):** Your Google authentication token is managed by Chrome's identity system. The extension does not store any personal data locally.
+
+**Locally (mobile app):** The mobile app stores a history of sent emails (titles, URLs, and timestamps) on your device using local storage. Your authentication token is managed by Firebase Authentication and Google Sign-In. This data stays on your device and is not sent to our servers beyond what is needed to send the email.
 
 **Server-side:** Our server (a Firebase Cloud Function) processes your email address, page URL, and page title only to send the email. No data is stored on the server after the email is sent.
-
-**Sent mail:** Emails are sent through a Gmail account controlled by MEmail. As a result, the sender's Gmail account retains a record of each sent email, which includes the recipient email address, page title, and page URL. These sent email records are not used for any purpose other than delivering the service.
 
 ## How Your Information Is Used
 
@@ -35,10 +35,12 @@ Your information is used solely to send you the email you requested. We do not:
 MEmail uses the following third-party services to operate:
 
 - **Google Firebase** (cloud function hosting and authentication)
-- **Gmail API** (email delivery)
-- **Google Identity Toolkit** (user authentication)
+- **Resend** (email delivery via SMTP)
+- **Google Sign-In** (user authentication)
 
-These services are subject to [Google's Privacy Policy](https://policies.google.com/privacy).
+These services are subject to their respective privacy policies:
+- [Google Privacy Policy](https://policies.google.com/privacy)
+- [Resend Privacy Policy](https://resend.com/legal/privacy-policy)
 
 ## Children's Privacy
 
