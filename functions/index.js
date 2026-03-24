@@ -167,6 +167,51 @@ exports.sendMeMailV2 = onRequest(
         html: getEmailTemplate(subject, url),
       })
 
+
+exports.sendMeMail = onRequest(
+  {
+    cors: {
+      origin: [
+        `chrome-extension://fflpcmbjflhfimhfhgcdmgjinglgflhk`,
+        'http://localhost:3000',
+      ],
+    },
+    secrets: [RESEND_API_KEY],
+    region: 'us-central1',
+  },
+  async (req, res) => {
+    try {
+      // Verify Firebase ID token if present, fall back to body email for
+      // backwards compatibility with the currently published Chrome extension.
+      // TODO: Remove fallback once the new extension is published.
+      let recipientEmail
+      const authHeader = req.headers.authorization
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const idToken = authHeader.split('Bearer ')[1]
+        const decodedToken = await admin.auth().verifyIdToken(idToken)
+        recipientEmail = decodedToken.email
+        if (!recipientEmail) {
+          return res.status(400).send('No email associated with this account')
+        }
+      } else {
+        recipientEmail = req.body.email
+        if (!recipientEmail) {
+          return res.status(400).send('Missing email')
+        }
+      }
+
+      const { title, url } = req.body
+
+      const subject = title || cleanUrl(url)
+
+      const transporter = getTransporter()
+      await transporter.sendMail({
+        from: `MEmail <${NO_REPLY_EMAIL}>`,
+        to: recipientEmail,
+        subject,
+        text: `Your Link: ${url}\n\nSupport MEmail: ${bmcLink}`,
+        html: getEmailTemplate(subject, url),
+      })
       return res.status(200).send('success')
     } catch (error) {
       console.error(error)
