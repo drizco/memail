@@ -86,17 +86,19 @@ class _SignInScreenState extends State<SignInScreen>
                   const SizedBox(height: 16),
                   Text(
                     'MEmail',
-                    style: GoogleFonts.amaticSc(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFB8221A),
+                    style: GoogleFonts.nunito(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w800,
+                      fontStyle: FontStyle.italic,
+                      color: const Color(0xFFC8261E),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Email yourself links in a single tap',
-                    style: GoogleFonts.josefinSlab(
-                      fontSize: 16,
+                    style: GoogleFonts.nunito(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
                       color: const Color(0xFF888888),
                     ),
                   ),
@@ -104,7 +106,7 @@ class _SignInScreenState extends State<SignInScreen>
                   ElevatedButton(
                     onPressed: _loading ? null : _handleSignIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB8221A),
+                      backgroundColor: const Color(0xFFC8261E),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 16),
@@ -114,12 +116,12 @@ class _SignInScreenState extends State<SignInScreen>
                       elevation: 2,
                       shadowColor: Colors.black38,
                       disabledBackgroundColor:
-                          const Color(0xFFB8221A).withValues(alpha: 0.6),
+                          const Color(0xFFC8261E).withValues(alpha: 0.6),
                     ),
                     child: Text(
                       _loading ? 'Signing in...' : 'Sign in with Google',
-                      style: GoogleFonts.amaticSc(
-                        fontSize: 22,
+                      style: GoogleFonts.nunito(
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -128,7 +130,7 @@ class _SignInScreenState extends State<SignInScreen>
                     const SizedBox(height: 16),
                     Text(
                       _error!,
-                      style: const TextStyle(color: Color(0xFFB8221A)),
+                      style: const TextStyle(color: Color(0xFFC8261E)),
                     ),
                   ],
                 ],

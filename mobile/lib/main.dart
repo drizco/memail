@@ -18,20 +18,22 @@ class MEmailApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'MEmail',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFB8221A)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFC8261E)),
         useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
-        textTheme: GoogleFonts.josefinSlabTextTheme(),
+        scaffoldBackgroundColor: const Color(0xFFFAF9F8),
+        textTheme: GoogleFonts.nunitoTextTheme(),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF222222),
           elevation: 0,
           scrolledUnderElevation: 0.5,
-          titleTextStyle: GoogleFonts.amaticSc(
-            fontSize: 36,
-            fontWeight: FontWeight.w700,
+          titleTextStyle: GoogleFonts.nunito(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            fontStyle: FontStyle.italic,
             color: const Color(0xFF222222),
           ),
         ),

@@ -17,9 +17,10 @@ class _BouncingDot extends StatelessWidget {
           offset: Offset(0, -animation.value),
           child: Text(
             '.',
-            style: GoogleFonts.amaticSc(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
+            style: GoogleFonts.nunito(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              fontStyle: FontStyle.italic,
               color: const Color(0xFF222222),
             ),
           ),
@@ -125,9 +126,10 @@ class _SendingOverlayState extends State<SendingOverlay>
                     children: [
                       Text(
                         'Sending',
-                        style: GoogleFonts.amaticSc(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w700,
+                        style: GoogleFonts.nunito(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          fontStyle: FontStyle.italic,
                           color: const Color(0xFF222222),
                         ),
                       ),
@@ -141,19 +143,21 @@ class _SendingOverlayState extends State<SendingOverlay>
                 if (widget.status == OverlayStatus.sent)
                   Text(
                     'MEmail sent!',
-                    style: GoogleFonts.amaticSc(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w700,
+                    style: GoogleFonts.nunito(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      fontStyle: FontStyle.italic,
                       color: const Color(0xFF222222),
                     ),
                   ),
                 if (widget.status == OverlayStatus.error)
                   Text(
                     'uh oh, something went wrong...',
-                    style: GoogleFonts.amaticSc(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFB8221A),
+                    style: GoogleFonts.nunito(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      fontStyle: FontStyle.italic,
+                      color: const Color(0xFFC8261E),
                     ),
                   ),
                 if (widget.url != null) ...[
@@ -165,7 +169,7 @@ class _SendingOverlayState extends State<SendingOverlay>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.josefinSlab(
+                      style: GoogleFonts.nunito(
                         fontSize: 13,
                         color: const Color(0xFF888888),
                       ),

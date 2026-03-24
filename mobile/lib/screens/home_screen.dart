@@ -118,7 +118,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MEmail'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/memail_logo.png', width: 28, height: 28),
+            const SizedBox(width: 8),
+            const Text('MEmail'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, size: 22),
@@ -132,13 +139,20 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           _history.isEmpty
-              ? const Center(
+              ? Center(
                   child: Padding(
-                    padding: EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(32),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        Image.asset(
+                          'assets/memail_logo.png',
+                          width: 64,
+                          height: 64,
+                          opacity: const AlwaysStoppedAnimation(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
                           'No emails sent yet',
                           style: TextStyle(
                             fontSize: 18,
@@ -146,8 +160,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Color(0xFF666666),
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
+                        const SizedBox(height: 8),
+                        const Text(
                           'Share a link from any app to get started',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -163,6 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
                         itemCount: _history.length,
                         itemBuilder: (context, index) => HistoryItem(
                           entry: _history[index],
@@ -171,12 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                              color: Color(0xFFE0E0E0), width: 0.5),
-                        ),
-                      ),
+                      color: Colors.white,
                       child: TextButton(
                         onPressed: _handleClearAll,
                         style: TextButton.styleFrom(
@@ -187,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Clear All',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color(0xFFB8221A),
+                            color: Color(0xFFC8261E),
                           ),
                         ),
                       ),
