@@ -73,13 +73,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _overlayStatus = OverlayStatus.sending;
     });
 
-    final success = await api.sendMeMail(idToken, url);
-    final status = success ? 'success' : 'error';
+    final result = await api.sendMeMail(idToken, url);
+    final status = result.success ? 'success' : 'error';
 
     await storage.addHistoryEntry(HistoryEntry(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: url,
-      url: url,
+      title: result.title ?? url,
+      url: result.url ?? url,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       status: status,
     ));
@@ -87,13 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
 
     setState(() {
-      _overlayStatus = success ? OverlayStatus.sent : OverlayStatus.error;
+      _overlayStatus = result.success ? OverlayStatus.sent : OverlayStatus.error;
     });
 
     await _refreshHistory();
 
     await Future.delayed(const Duration(milliseconds: 1500));
-    if (success) {
+    if (result.success) {
       SystemNavigator.pop();
     }
     if (mounted) {

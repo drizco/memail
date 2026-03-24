@@ -162,6 +162,16 @@ exports.sendMeMailV2 = onRequest(
         html: getEmailTemplate(subject, url),
       })
 
+      if (req.query.format === 'json') {
+        return res.status(200).json({ title: subject, url })
+      }
+      return res.status(200).send('success')
+    } catch (error) {
+      console.error(error)
+      return res.status(500).send('error')
+    }
+  }
+)
 
 exports.sendMeMail = onRequest(
   {
