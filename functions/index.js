@@ -2,9 +2,6 @@ const { onRequest } = require('firebase-functions/v2/https')
 const { defineSecret } = require('firebase-functions/params')
 const admin = require('firebase-admin')
 const nodemailer = require('nodemailer')
-const https = require('https')
-const http = require('http')
-
 admin.initializeApp()
 
 const RESEND_API_KEY = defineSecret('RESEND_API_KEY')
@@ -22,45 +19,40 @@ const getTransporter = () => {
   })
 }
 
-const fetchPageTitle = (url) => {
-  return new Promise((resolve) => {
-    const client = url.startsWith('https') ? https : http
-    const request = client.get(url, { timeout: 5000 }, (res) => {
-      if (res.statusCode < 200 || res.statusCode >= 400) {
-        resolve(null)
-        res.resume()
-        return
-      }
+const isYouTubeUrl = (url) => {
+  try {
+    const host = new URL(url).hostname.replace('www.', '')
+    return host === 'youtube.com' || host === 'youtu.be' || host === 'm.youtube.com'
+  } catch (_) {
+    return false
+  }
+}
 
-      // Follow redirects
-      if (res.statusCode >= 300 && res.headers.location) {
-        resolve(fetchPageTitle(res.headers.location))
-        res.resume()
-        return
-      }
+const fetchYouTubeTitle = async (url) => {
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
+    const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(3000) })
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.title || null
+  } catch (_) {
+    return null
+  }
+}
 
-      let body = ''
-      res.setEncoding('utf8')
-      res.on('data', (chunk) => {
-        body += chunk
-        // Stop reading once we have enough to find the title
-        const match = body.match(/<title[^>]*>([^<]+)<\/title>/i)
-        if (match) {
-          resolve(match[1].trim())
-          res.destroy()
-        }
-      })
-      res.on('end', () => {
-        const match = body.match(/<title[^>]*>([^<]+)<\/title>/i)
-        resolve(match ? match[1].trim() : null)
-      })
+const fetchPageTitle = async (url) => {
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(5000),
+      redirect: 'follow',
     })
-    request.on('error', () => resolve(null))
-    request.on('timeout', () => {
-      request.destroy()
-      resolve(null)
-    })
-  })
+    if (!res.ok) return null
+    const html = await res.text()
+    const match = html.match(/<title[^>]*>([^<]+)<\/title>/i)
+    return match ? match[1].trim() : null
+  } catch (_) {
+    return null
+  }
 }
 
 const cleanUrl = (url) => {
@@ -152,6 +144,9 @@ exports.sendMeMailV2 = onRequest(
       const transporter = getTransporter()
 
       let subject = title
+      if (!subject && isYouTubeUrl(url)) {
+        subject = await fetchYouTubeTitle(url)
+      }
       if (!subject) {
         subject = await fetchPageTitle(url)
       }
