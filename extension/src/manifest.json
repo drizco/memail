@@ -2,7 +2,7 @@
   "manifest_version": 3,
 
   "name": "MEmail",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "Email yourself links to sites you'd like to view later, in a single click!",
   "icons": {
     "16": "memail_logo@16px.png",

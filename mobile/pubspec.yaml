@@ -1,7 +1,7 @@
 name: memail
 description: Email yourself a link in a single tap.
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+3
 
 environment:
   sdk: ^3.5.0
@@ -27,10 +27,10 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon.png"
-  adaptive_icon_foreground: "assets/android-icon-foreground.png"
-  adaptive_icon_background: "#c8261e"
-  adaptive_icon_monochrome: "assets/android-icon-monochrome.png"
+  image_path: 'assets/icon.png'
+  adaptive_icon_foreground: 'assets/android-icon-foreground.png'
+  adaptive_icon_background: '#c8261e'
+  adaptive_icon_monochrome: 'assets/android-icon-monochrome.png'
   remove_alpha_ios: true
 
 flutter:
