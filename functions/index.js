@@ -73,13 +73,14 @@ const getEmailTemplate = (title, url) => {
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,800;1,800&display=swap');
     .email-body { font-family: 'Nunito', sans-serif; color: #333; line-height: 1.6; }
   </style>
 </head>
 <body style="margin: 0; padding: 20px; background-color: #f9f9f9; font-family: 'Nunito', sans-serif;">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 6px rgba(0,0,0,0.1); font-family: 'Nunito', sans-serif;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 6px rgba(0,0,0,0.1); font-family: 'Nunito', sans-serif; table-layout: fixed;">
     
     <tr>
       <td align="center" style="padding: 30px 0; background-color: #ffffff; font-weight: 800; font-style: italic;">
