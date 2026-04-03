@@ -31,14 +31,23 @@ class EmailController {
     return tab
   }
 
-  sendEmail(done) {
-    utils
-      .sendEmail(this.firebaseIdToken, this.data)
-      .then((responseText) => done(responseText))
-      .catch(() => done('error'))
+  async sendEmail() {
+    try {
+      const responseText = await utils.sendEmail(this.firebaseIdToken, this.data)
+      this.renderStatus(responseText)
+    } catch (_) {
+      this.renderStatus('error')
+    }
   }
 
-  renderSending(email) {
+  async sendFlow(interactive) {
+    await this.authenticate(interactive)
+    await this.getTab()
+    this.renderSending()
+    await this.sendEmail()
+  }
+
+  renderSending() {
     const msgContainer = document.getElementById('msg-container'),
       fragment = document.createDocumentFragment(),
       mainEl = document.createElement('div'),
@@ -48,7 +57,7 @@ class EmailController {
       toEl = document.createElement('div'),
       toText = document.createTextNode('to '),
       emailEl = document.createElement('span'),
-      emailText = document.createTextNode(email)
+      emailText = document.createTextNode(this.email)
 
     mainEl.appendChild(mainText)
     titleEl.appendChild(titleText)
@@ -83,7 +92,7 @@ class EmailController {
     status.appendChild(statusText)
     msgContainer.innerHTML = null
     msgContainer.appendChild(status)
-    setTimeout(window.close, 1000)
+    setTimeout(window.close, 1500)
   }
 
   renderError(message) {
@@ -98,28 +107,18 @@ class EmailController {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const MEmail = new EmailController()
-
-  async function sendFlow() {
-    await MEmail.authenticate()
-    await MEmail.getTab()
-    MEmail.renderSending(MEmail.email)
-    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
-  }
+  const controller = new EmailController()
 
   try {
     // Try silent auth first (no popup)
-    await MEmail.authenticate(false)
-    await MEmail.getTab()
-    MEmail.renderSending(MEmail.email)
-    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
+    await controller.sendFlow(false)
   } catch {
     // Not authenticated — show sign-in button
-    MEmail.renderSignIn(async () => {
+    controller.renderSignIn(async () => {
       try {
-        await sendFlow()
+        await controller.sendFlow()
       } catch {
-        MEmail.renderError('Sign in failed. Please try again.')
+        controller.renderError('Sign in failed. Please try again.')
       }
     })
   }
