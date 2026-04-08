@@ -28,30 +28,46 @@ const isYouTubeUrl = (url) => {
   }
 }
 
-const fetchYouTubeTitle = async (url) => {
+const fetchYouTubeMeta = async (url) => {
   try {
     const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
     const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(3000) })
-    if (!res.ok) return null
+    if (!res.ok) return {}
     const data = await res.json()
-    return data.title || null
+    return { title: data.title || null, imageUrl: data.thumbnail_url || null }
   } catch (_) {
-    return null
+    return {}
   }
 }
 
-const fetchPageTitle = async (url) => {
+const fetchPageMeta = async (url) => {
   try {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(5000),
       redirect: 'follow',
     })
-    if (!res.ok) return null
+    if (!res.ok) return {}
     const html = await res.text()
-    const match = html.match(/<title[^>]*>([^<]+)<\/title>/i)
-    return match ? match[1].trim() : null
+
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
+    const title = titleMatch ? titleMatch[1].trim() : null
+
+    const ogImageMatch =
+      html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)
+    let imageUrl = ogImageMatch ? ogImageMatch[1].trim() : null
+
+    if (imageUrl && !imageUrl.startsWith('http')) {
+      try {
+        imageUrl = new URL(imageUrl, url).href
+      } catch (_) {
+        imageUrl = null
+      }
+    }
+
+    return { title, imageUrl }
   } catch (_) {
-    return null
+    return {}
   }
 }
 
@@ -68,7 +84,16 @@ const brandRed = '#c8261e'
 const bmcLink = 'https://www.buymeacoffee.com/drizco'
 const logoUrl = 'https://api.memail.drizco.dev/logo.png'
 
-const getEmailTemplate = (title, url) => {
+const getEmailTemplate = (title, url, imageUrl) => {
+  const previewImageRow = imageUrl
+    ? `
+    <tr>
+      <td style="padding: 0 40px 30px 40px; text-align: center;">
+        <a href="${url}"><img src="${imageUrl}" alt="" width="100%" style="max-width: 520px; border-radius: 6px; display: block; margin: 0 auto; border: 0;"></a>
+      </td>
+    </tr>`
+    : ''
+
   return `
 <!DOCTYPE html>
 <html>
@@ -79,8 +104,8 @@ const getEmailTemplate = (title, url) => {
   </style>
 </head>
 <body style="margin: 0; padding: 20px; background-color: #f9f9f9; font-family: 'Nunito', sans-serif;">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 6px rgba(0,0,0,0.1); font-family: 'Nunito', sans-serif;">
-    
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 6px rgba(0,0,0,0.1); font-family: 'Nunito', sans-serif; table-layout: fixed;">
+
     <tr>
       <td align="center" style="padding: 30px 0; background-color: #ffffff; font-weight: 800; font-style: italic;">
         <img src="${logoUrl}" alt="MEmail" width="70" height="70" style="display: block; border: 0; outline: none;">
@@ -88,19 +113,25 @@ const getEmailTemplate = (title, url) => {
     </tr>
 
     <tr>
-      <td style="padding: 0 40px 40px 40px; text-align: center;">
-        <h2 style="font-size: 24px; margin-bottom: 40px;"><a href="${url}" style="color: ${brandRed}; text-decoration: none;">${title || url}</a></h2>
+      <td style="padding: 0 40px 30px 40px; text-align: center;">
+        <h2 style="font-size: 24px; margin-bottom: 0;"><a href="${url}" style="color: ${brandRed}; text-decoration: none;">${title || url}</a></h2>
+      </td>
+    </tr>
 
+    ${previewImageRow}
+
+    <tr>
+      <td style="padding: 0 40px 40px 40px; text-align: center;">
         <p style="margin-bottom: 40px;font-size: 13px; word-break: break-all;">
           <a href="${url}" style="color: ${brandRed};">${url}</a>
         </p>
-        
+
         <p>
           <a href="${url}" style="background-color: ${brandRed}; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 3px; font-size: 18px; display: inline-block;">
             Open Link
           </a>
         </p>
-        
+
       </td>
     </tr>
 
@@ -140,15 +171,21 @@ exports.sendMeMailV2 = onRequest(
         return res.status(400).send('No email associated with account')
       }
 
-      const { title, url } = req.body
+      const { url } = req.body
       const transporter = getTransporter()
 
-      let subject = title
-      if (!subject && isYouTubeUrl(url)) {
-        subject = await fetchYouTubeTitle(url)
+      let subject = null
+      let imageUrl = null
+
+      if (isYouTubeUrl(url)) {
+        const meta = await fetchYouTubeMeta(url)
+        subject = meta.title || null
+        imageUrl = meta.imageUrl || null
       }
-      if (!subject) {
-        subject = await fetchPageTitle(url)
+      if (!subject || !imageUrl) {
+        const meta = await fetchPageMeta(url)
+        if (!subject) subject = meta.title || null
+        if (!imageUrl) imageUrl = meta.imageUrl || null
       }
       if (!subject) {
         subject = cleanUrl(url)
@@ -159,7 +196,7 @@ exports.sendMeMailV2 = onRequest(
         to: recipientEmail,
         subject,
         text: `Your Link: ${url}\n\nSupport MEmail: ${bmcLink}`,
-        html: getEmailTemplate(subject, url),
+        html: getEmailTemplate(subject, url, imageUrl),
       })
 
       if (req.query.format === 'json') {
