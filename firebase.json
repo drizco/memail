@@ -3,6 +3,7 @@
     "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run lint"]
   },
   "hosting": {
+    "predeploy": ["cp PRIVACY_POLICY.md public/privacy-policy.md"],
     "public": "public",
     "rewrites": [
       {

@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MEmail — Email yourself any link, instantly</title>
+    <meta
+      name="description"
+      content="MEmail lets you email yourself a link to any page in a single click or tap. Available as a Chrome extension and Android app."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="logo.png" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --red: #c8261e;
+        --red-dark: #a81f18;
+        --text: #1a1a1a;
+        --muted: #555;
+        --border: #e5e5e5;
+        --bg-subtle: #fafafa;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Nunito', sans-serif;
+        color: var(--text);
+        background: #fff;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      /* ── Nav ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text);
+      }
+
+      .nav-brand img {
+        width: 32px;
+        height: 32px;
+      }
+
+      .nav-brand span {
+        font-weight: 900;
+        font-size: 1.15rem;
+        letter-spacing: -0.3px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: var(--red);
+      }
+
+      /* ── Hero ── */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 5rem 1.5rem 4rem;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .hero-logo {
+        width: 96px;
+        height: 96px;
+        margin-bottom: 1.5rem;
+        filter: drop-shadow(0 4px 12px rgba(200, 38, 30, 0.25));
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 900;
+        line-height: 1.15;
+        letter-spacing: -0.5px;
+        margin-bottom: 1rem;
+      }
+
+      .hero h1 em {
+        font-style: normal;
+        color: var(--red);
+      }
+
+      .hero p {
+        font-size: 1.15rem;
+        color: var(--muted);
+        max-width: 480px;
+        margin-bottom: 2rem;
+      }
+
+      .cta-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+      }
+
+      .btn-primary {
+        background: var(--red);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--red-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(200, 38, 30, 0.3);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--text);
+        border: 2px solid var(--border);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--text);
+        transform: translateY(-1px);
+      }
+
+      .btn svg {
+        flex-shrink: 0;
+      }
+
+      /* ── How it works ── */
+      .section {
+        padding: 4rem 1.5rem;
+      }
+
+      .section-inner {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .section-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 0.5rem;
+      }
+
+      .section h2 {
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        margin-bottom: 2.5rem;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+      }
+
+      .step {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .step-num {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-weight: 900;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .step h3 {
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .step p {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      /* ── Features ── */
+      .features-bg {
+        background: var(--bg-subtle);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .feature-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .feature-icon {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-card h3 {
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .feature-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* ── Download ── */
+      .download-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .download-card {
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .download-card h3 {
+        font-weight: 900;
+        font-size: 1.1rem;
+      }
+
+      .download-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        flex: 1;
+      }
+
+      /* ── Beta Section ── */
+      .beta-section {
+        background: var(--bg-subtle);
+        border-top: 1px solid var(--border);
+        padding: 4rem 1.5rem;
+        text-align: center;
+      }
+
+      .beta-form-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 2.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--red);
+        box-shadow: 0 10px 25px rgba(200, 38, 30, 0.1);
+      }
+
+      .beta-form-container h2 {
+        margin-bottom: 0.5rem;
+      }
+
+      .beta-form-container p {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: left;
+      }
+
+      .form-input {
+        padding: 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--red);
+      }
+
+      .form-note {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      .badge-beta {
+        display: inline-block;
+        background: #fff0f0;
+        color: var(--red);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        vertical-align: middle;
+        margin-left: 5px;
+        border: 1px solid var(--red);
+      }
+
+      /* ── GitHub ── */
+      .github-section {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .github-section p {
+        color: var(--muted);
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+      }
+
+      /* ── Footer ── */
+      footer {
+        background: var(--bg-subtle);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--muted);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem 1.5rem;
+      }
+
+      footer a {
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      footer a:hover {
+        color: var(--red);
+      }
+
+      @media (max-width: 480px) {
+        nav {
+          padding: 0 1rem;
+        }
+        .nav-links {
+          gap: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="#">
+        <img src="logo.png" alt="MEmail logo" />
+        <span>MEmail</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#download">Download</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li>
+          <a href="https://github.com/drizco/memail" target="_blank" rel="noopener">
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <section class="hero">
+      <img class="hero-logo" src="logo.png" alt="MEmail" />
+      <h1>Email yourself any link,&nbsp;<em>instantly.</em></h1>
+      <p>
+        One click in your browser or one tap on your phone and the page lands in your
+        inbox, no copy-paste, no notes app.
+      </p>
+      <div class="cta-group">
+        <a
+          class="btn btn-primary"
+          href="https://chromewebstore.google.com/detail/memail/fflpcmbjflhfimhfhgcdmgjinglgflhk"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"
+            />
+          </svg>
+          Add Extension
+        </a>
+        <a class="btn btn-primary" href="#beta-signup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31A5.985 5.985 0 006 7h12a5.99 5.99 0 00-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"
+            />
+          </svg>
+          Join Android Beta
+        </a>
+        <a
+          class="btn btn-outline"
+          href="https://github.com/drizco/memail"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+            />
+          </svg>
+          View on GitHub
+        </a>
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+      <div class="section-inner">
+        <p class="section-label">How it works</p>
+        <h2>Three steps, zero friction</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Sign in with Google</h3>
+            <p>
+              One-time setup. MEmail uses your existing Google account, no new password
+              required.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Click or tap</h3>
+            <p>
+              Hit the extension button in Chrome or the share button on Android. That's
+              it.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Check your inbox</h3>
+            <p>
+              A clean email with the page title and link arrives in seconds, ready to open
+              on any device.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features-bg">
+      <div class="section-inner">
+        <p class="section-label">Features</p>
+        <h2>Simple by design</h2>
+        <div class="features">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>One click</h3>
+            <p>No menus, no dialogs. Click the icon and the link is on its way.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Private by default</h3>
+            <p>
+              Your links are never stored on our servers. We process and send, nothing
+              more.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Android share sheet</h3>
+            <p>
+              Share to MEmail from any Android app just like you'd share to any other
+              contact.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Local history</h3>
+            <p>
+              The mobile app keeps a local history of everything you've sent, on your
+              device only.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="download">
+      <div class="section-inner">
+        <p class="section-label">Download</p>
+        <h2>Available on Chrome &amp; Android</h2>
+        <div class="download-cards">
+          <div class="download-card">
+            <h3>
+              <svg
+                style="vertical-align: -3px; margin-right: 6px"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="#c8261e"
+              >
+                <path
+                  d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"
+                />
+              </svg>
+              Chrome Extension
+            </h3>
+            <p>
+              Adds a toolbar button to Chrome. Works on any page, just click and your
+              inbox gets the link.
+            </p>
+            <a
+              class="btn btn-primary"
+              href="https://chromewebstore.google.com/detail/memail/fflpcmbjflhfimhfhgcdmgjinglgflhk"
+              target="_blank"
+              rel="noopener"
+            >
+              Add Extension
+            </a>
+          </div>
+          <div class="download-card">
+            <h3>
+              <svg
+                style="vertical-align: -3px; margin-right: 6px"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="#c8261e"
+              >
+                <path
+                  d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31A5.985 5.985 0 006 7h12a5.99 5.99 0 00-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"
+                />
+              </svg>
+              Android App <span class="badge-beta">Closed Beta</span>
+            </h3>
+            <p>
+              Integrates with the Android share sheet. Currently in closed testing.
+              Request access to send links from your phone.
+            </p>
+            <a class="btn btn-primary" href="#beta-signup"> Request Access </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="beta-section" id="beta-signup">
+      <div class="beta-form-container">
+        <h2>Join the Android Beta</h2>
+        <p>
+          MEmail for Android is in a closed testing phase. Enter your Google Play email
+          below to get an invite.
+        </p>
+
+        <form
+          action="https://docs.google.com/forms/u/0/d/1oBJ8G-BkMjGFfjIm9itQRzdb2E8fcb3nvIejnHVnvrI/formResponse"
+          method="POST"
+          target="hidden_iframe"
+          id="beta-form"
+          class="form-group"
+        >
+          <label for="email" style="font-weight: 700; font-size: 0.9rem"
+            >Play Store Email Address</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="entry.1186386253"
+            class="form-input"
+            placeholder="yourname@gmail.com"
+            required
+          />
+          <p class="form-note">
+            * Note: This must be the email address you use for the Google Play Store.
+          </p>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="justify-content: center; margin-top: 0.5rem"
+          >
+            Request Access
+          </button>
+        </form>
+
+        <script>
+          var submitted = false
+          document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('beta-form').onsubmit = function () {
+              submitted = true
+            }
+          })
+        </script>
+
+        <iframe
+          name="hidden_iframe"
+          id="hidden_iframe"
+          style="display: none"
+          onload="
+            if (submitted) {
+              window.location = '#'
+              alert('Success! We will add you to the test list soon.')
+            }
+          "
+        ></iframe>
+      </div>
+    </section>
+
+    <div class="github-section">
+      <p>MEmail is open source.</p>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center">
+        <a
+          class="btn btn-outline"
+          href="https://github.com/drizco/memail"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+            />
+          </svg>
+          drizco/memail on GitHub
+        </a>
+        <a
+          class="btn btn-outline"
+          href="https://www.buymeacoffee.com/drizco"
+          target="_blank"
+          rel="noopener"
+        >
+          ☕ Buy me a coffee
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="https://github.com/drizco/memail" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+    <script
+      data-name="BMC-Widget"
+      data-cfasync="false"
+      src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+      data-id="drizco"
+      data-description="Support me on Buy me a coffee!"
+      data-message=""
+      data-color="#c8261e"
+      data-position="Right"
+      data-x_margin="18"
+      data-y_margin="18"
+    ></script>
+  </body>
+</html>

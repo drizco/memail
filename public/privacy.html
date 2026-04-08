@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — MEmail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #c8261e;
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #e5e5e5;
+      --bg-subtle: #fafafa;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      background: #fff;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-brand img { width: 32px; height: 32px; }
+
+    .nav-brand span {
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--red); }
+
+    /* ── Content ── */
+    .page-header {
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .content-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* ── Markdown styles ── */
+    #policy h1 { display: none; } /* title already in page header */
+
+    #policy h2 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin: 2rem 0 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    #policy h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    #policy p {
+      margin-bottom: 0.85rem;
+      color: #333;
+    }
+
+    #policy ul, #policy ol {
+      margin: 0.5rem 0 1rem 1.5rem;
+    }
+
+    #policy li {
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+
+    #policy strong {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    #policy a {
+      color: var(--red);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    #policy a:hover { text-decoration: underline; }
+
+    #policy code {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-size: 0.875em;
+    }
+
+    /* Loading / error state */
+    #policy-loading {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--muted);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem 1.5rem;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover { color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a class="nav-brand" href="index.html">
+      <img src="logo.png" alt="MEmail logo" />
+      <span>MEmail</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#how-it-works">How it works</a></li>
+      <li><a href="index.html#download">Download</a></li>
+      <li><a href="privacy.html" style="color:var(--red)">Privacy</a></li>
+      <li><a href="https://github.com/drizco/memail" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <h1>Privacy Policy</h1>
+    <p>Last updated: March 24, 2026</p>
+  </div>
+
+  <!-- Content -->
+  <div class="content-wrap">
+    <div id="policy-loading">Loading…</div>
+    <div id="policy" style="display:none"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="https://github.com/drizco/memail" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+  <script>
+    fetch('privacy-policy.md')
+      .then(r => {
+        if (!r.ok) throw new Error('Not found');
+        return r.text();
+      })
+      .then(md => {
+        document.getElementById('policy-loading').style.display = 'none';
+        const el = document.getElementById('policy');
+        el.innerHTML = marked.parse(md);
+        el.style.display = '';
+      })
+      .catch(() => {
+        document.getElementById('policy-loading').textContent =
+          'Privacy policy could not be loaded.';
+      });
+  </script>
+
+</body>
+</html>
