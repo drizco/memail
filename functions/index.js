@@ -65,7 +65,7 @@ const fetchPageMeta = async (url) => {
       }
     }
 
-    return { title, imageUrl }
+    return { title, imageUrl, resolvedUrl: res.url }
   } catch (_) {
     return {}
   }
@@ -182,10 +182,12 @@ exports.sendMeMailV2 = onRequest(
         subject = meta.title || null
         imageUrl = meta.imageUrl || null
       }
+      let emailUrl = url
       if (!subject || !imageUrl) {
         const meta = await fetchPageMeta(url)
         if (!subject) subject = meta.title || null
         if (!imageUrl) imageUrl = meta.imageUrl || null
+        if (meta.resolvedUrl && meta.resolvedUrl !== url) emailUrl = meta.resolvedUrl
       }
       if (!subject) {
         subject = cleanUrl(url)
@@ -196,7 +198,7 @@ exports.sendMeMailV2 = onRequest(
         to: recipientEmail,
         subject,
         text: `Your Link: ${url}\n\nSupport MEmail: ${bmcLink}`,
-        html: getEmailTemplate(subject, url, imageUrl),
+        html: getEmailTemplate(subject, emailUrl, imageUrl),
       })
 
       if (req.query.format === 'json') {
