@@ -71,6 +71,16 @@ const fetchPageMeta = async (url) => {
   }
 }
 
+const extractUrl = (input) => {
+  try {
+    new URL(input)
+    return input
+  } catch (_) {
+    const match = input.match(/\S+:\/\/\S+/)
+    return match ? match[0] : input
+  }
+}
+
 const cleanUrl = (url) => {
   try {
     const parsed = new URL(url)
@@ -171,7 +181,8 @@ exports.sendMeMailV2 = onRequest(
         return res.status(400).send('No email associated with account')
       }
 
-      const { url } = req.body
+      const { url: rawUrl } = req.body
+      const url = extractUrl(rawUrl)
       const transporter = getTransporter()
 
       let subject = null
@@ -244,7 +255,8 @@ exports.sendMeMail = onRequest(
         }
       }
 
-      const { title, url } = req.body
+      const { title, url: rawUrl } = req.body
+      const url = extractUrl(rawUrl)
 
       const subject = title || cleanUrl(url)
 
