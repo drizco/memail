@@ -4,15 +4,7 @@ class EmailController {
       url: '',
       title: '',
     }
-    this.firebaseIdToken = null
-    this.email = null
-  }
-
-  async authenticate(interactive = true) {
-    const googleToken = await utils.getGoogleToken(interactive)
-    const { idToken, email } = await utils.getFirebaseIdToken(googleToken)
-    this.firebaseIdToken = idToken
-    this.email = email
+    this.busy = false
   }
 
   renderSignIn(onSignIn) {
@@ -31,29 +23,16 @@ class EmailController {
     return tab
   }
 
-  sendEmail(done) {
-    utils
-      .sendEmail(this.firebaseIdToken, this.data)
-      .then((responseText) => done(responseText))
-      .catch(() => done('error'))
-  }
-
-  renderSending(email) {
+  renderSending() {
     const msgContainer = document.getElementById('msg-container'),
       fragment = document.createDocumentFragment(),
       mainEl = document.createElement('div'),
       mainText = document.createTextNode('Sending'),
       titleEl = document.createElement('div'),
-      titleText = document.createTextNode(this.data.title),
-      toEl = document.createElement('div'),
-      toText = document.createTextNode('to '),
-      emailEl = document.createElement('span'),
-      emailText = document.createTextNode(email)
+      titleText = document.createTextNode(this.data.title)
 
     mainEl.appendChild(mainText)
     titleEl.appendChild(titleText)
-    toEl.appendChild(toText)
-    emailEl.appendChild(emailText)
 
     for (let i = 1; i <= 3; i++) {
       let dotText = document.createTextNode('.'),
@@ -63,11 +42,8 @@ class EmailController {
       mainEl.appendChild(dotEl)
     }
 
-    toEl.appendChild(emailEl)
-
     fragment.appendChild(mainEl)
     fragment.appendChild(titleEl)
-    fragment.appendChild(toEl)
     msgContainer.innerHTML = null
     msgContainer.appendChild(fragment)
   }
@@ -83,7 +59,7 @@ class EmailController {
     status.appendChild(statusText)
     msgContainer.innerHTML = null
     msgContainer.appendChild(status)
-    setTimeout(window.close, 1000)
+    if (response === 'success') setTimeout(() => window.close(), 1000)
   }
 
   renderError(message) {
@@ -100,27 +76,35 @@ class EmailController {
 document.addEventListener('DOMContentLoaded', async function () {
   const MEmail = new EmailController()
 
-  async function sendFlow() {
-    await MEmail.authenticate()
-    await MEmail.getTab()
-    MEmail.renderSending(MEmail.email)
-    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
+  async function sendFlow(interactive = false) {
+    if (MEmail.busy) return
+    MEmail.busy = true
+    try {
+      MEmail.renderSending()
+      const result = await chrome.runtime.sendMessage({
+        type: 'send-page',
+        data: MEmail.data,
+        interactive,
+      })
+      if (result?.status === 'success') {
+        MEmail.renderStatus('success')
+      } else if (result?.code === 'auth-required') {
+        MEmail.renderSignIn(() => sendFlow(true))
+      } else {
+        MEmail.renderError(result?.message || 'Could not confirm delivery. Check your inbox before trying again.')
+      }
+    } catch {
+      MEmail.renderError('Could not confirm delivery. Check your inbox before trying again.')
+    } finally {
+      MEmail.busy = false
+    }
   }
 
   try {
-    // Try silent auth first (no popup)
-    await MEmail.authenticate(false)
+    // Capture the original page before authorization changes browser focus.
     await MEmail.getTab()
-    MEmail.renderSending(MEmail.email)
-    MEmail.sendEmail(MEmail.renderStatus.bind(MEmail))
+    await sendFlow()
   } catch {
-    // Not authenticated — show sign-in button
-    MEmail.renderSignIn(async () => {
-      try {
-        await sendFlow()
-      } catch {
-        MEmail.renderError('Sign in failed. Please try again.')
-      }
-    })
+    MEmail.renderError('Could not read this page. Open a web page and try again.')
   }
 })

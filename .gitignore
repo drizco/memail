@@ -107,3 +107,6 @@ mobile/*.iml
 mobile/README.md
 
 .firebase/
+# Local browser-test artifacts
+extension/test-results/
+extension/playwright-report/
