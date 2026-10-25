@@ -29,6 +29,7 @@ function mockReqRes(overrides = {}) {
   const req = {
     headers: { authorization: 'Bearer valid-token' },
     body: { title: 'Test Page', url: 'https://example.com' },
+    query: {},
     ...overrides,
   }
   const res = {
@@ -42,6 +43,11 @@ describe('sendMeMailV2', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     admin.auth().verifyIdToken.mockResolvedValue({ email: 'user@test.com' })
+    // Never fetch external pages from a unit test.
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true, url: 'https://example.com',
+      text: async () => '<title>Fetched Page</title>',
+    })
   })
 
   it('returns 401 when no authorization header', async () => {
@@ -70,20 +76,22 @@ describe('sendMeMailV2', () => {
     const { req, res } = mockReqRes()
     await sendMeMailV2(req, res)
 
-    expect(mockSendMail).toHaveBeenCalledWith({
+    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
       from: 'MEmail <no-reply@memail.drizco.dev>',
       to: 'user@test.com',
-      subject: 'Test Page',
-      text: 'https://example.com',
-    })
+      subject: 'Fetched Page',
+      text: expect.stringContaining('Your Link: https://example.com'),
+      html: expect.stringContaining('Fetched Page'),
+    }))
   })
 
-  it('falls back to "MEmail Link" when title is missing', async () => {
+  it('falls back to the URL when page metadata is unavailable', async () => {
+    fetch.mockResolvedValue({ ok: false })
     const { req, res } = mockReqRes({ body: { url: 'https://example.com' } })
     await sendMeMailV2(req, res)
 
     expect(mockSendMail).toHaveBeenCalledWith(
-      expect.objectContaining({ subject: 'MEmail Link' })
+      expect.objectContaining({ subject: 'example.com' })
     )
   })
 

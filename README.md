@@ -40,3 +40,10 @@ npm --prefix functions run deploy   # deploy to Firebase
 ## Privacy Policy
 
 See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+
+### Extension authentication tests
+
+See [authentication investigation, regression tests and release checks](extension/docs/authentication.md).
+The authentication repair requires validation of the Chrome OAuth client with an
+isolated test account before release; mocked browser tests do not establish live
+Google sign-in or email delivery.

@@ -4,7 +4,8 @@
   "description": "MEmail Chrome Extension",
   "scripts": {
     "build": "mkdir -p dist && zip -r dist/memail-extension.zip src/",
-    "test": "jest"
+    "test": "jest",
+    "test:e2e": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,13 @@
   },
   "homepage": "https://github.com/drizco/memail#readme",
   "devDependencies": {
-    "jest": "^29.7.0"
+    "@playwright/test": "1.58.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "29.7.0"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ]
   }
 }
